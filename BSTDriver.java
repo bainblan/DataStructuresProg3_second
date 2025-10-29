@@ -11,15 +11,29 @@ public class BSTDriver {
         char typeChar = input.next().toLowerCase().charAt(0);
         String type = (typeChar == 'i') ? "int" : (typeChar == 'd') ? "double" : (typeChar == 's') ? "string" : "";
 
+        // Accept an optional filename argument. If none provided, use data.txt.
+        // If multiple args are given, join them with spaces to support filenames that contain spaces.
+        String filename = "data.txt";
+        if (args.length >= 1) {
+            filename = String.join(" ", args);
+        }
+
         // We'll use a raw BinarySearchTree reference and treat values based on typeChar.
         BinarySearchTree bst = null;
-        try (Scanner s = new Scanner(new File("data.txt"))) {
+        Scanner s = null;
+        try {
+            // construct Scanner inside try so FileNotFoundException is thrown from here
+            s = new Scanner(new File(filename));
             bst = new BinarySearchTree();
             switch (typeChar) {
                 case 'i':
                     while (s.hasNext()) {
                         if (s.hasNextInt()) {
-                            bst.insert(s.nextInt());
+                            try {
+                                bst.insert(s.nextInt());
+                            } catch (IllegalArgumentException e) {
+                                System.out.println(e.getMessage());
+                            }
                         } else {
                             s.next();
                         }
@@ -28,7 +42,11 @@ public class BSTDriver {
                 case 'd':
                     while (s.hasNext()) {
                         if (s.hasNextDouble()) {
-                            bst.insert(s.nextDouble());
+                            try {
+                                bst.insert(s.nextDouble());
+                            } catch (IllegalArgumentException e) {
+                                System.out.println(e.getMessage());
+                            }
                         } else {
                             s.next();
                         }
@@ -36,18 +54,27 @@ public class BSTDriver {
                     break;
                 case 's':
                     while (s.hasNext()) {
-                        bst.insert(s.next());
+                        try {
+                            bst.insert(s.next());
+                        } catch (IllegalArgumentException e) {
+                            System.out.println(e.getMessage());
+                        }
                     }
                     break;
                 default:
                     System.out.println("Invalid type selected.");
                     input.close();
+                    if (s != null) s.close();
                     return;
             }
-
         } catch (FileNotFoundException e) {
-            // If data.txt not present, start with an empty tree
+            // If the input file is not found, create an empty tree and continue
+            System.out.println("Input file '" + filename + "' not found; starting with an empty tree.");
             bst = new BinarySearchTree();
+        } finally {
+            if (s != null) {
+                s.close();
+            }
         }
 
         char command = ' ';
@@ -148,7 +175,7 @@ public class BSTDriver {
     }
 
     public static void pCalled(BinarySearchTree bst) {
-        System.out.println("In-order traversal:");
+        System.out.println("In-order:");
         bst.inOrder();
     }
 
@@ -189,7 +216,7 @@ public class BSTDriver {
     }
 
     public static boolean cCalled(Scanner input, BinarySearchTree bst, char typeChar) {
-        System.out.print("Enter node value to find cousins for: ");
+        System.out.print("Enter a number: ");
         String value = input.next();
         try {
             Object key;
@@ -210,7 +237,7 @@ public class BSTDriver {
                 System.out.println("Node not found.");
                 return false;
             }
-            System.out.print("Cousins of " + value + ": ");
+            System.out.print(value + "cousins: ");
             bst.getCousins(node);
             System.out.println();
             return true;
@@ -220,16 +247,20 @@ public class BSTDriver {
         }
     }
 
-    public static boolean oCalled(BinarySearchTree bst) {
-        boolean prop = bst.isProper();
-        System.out.println("Is proper? " + prop);
-        return prop;
+    public static void oCalled(BinarySearchTree bst) {
+        if (bst.isProper()) {
+            System.out.println("The tree is proper.");
+        } else {
+            System.out.println("The tree is not proper.");
+        }
     }
 
-    public static boolean mCalled(BinarySearchTree bst) {
-        boolean comp = bst.isComplete();
-        System.out.println("Is complete? " + comp);
-        return comp;
+    public static void mCalled(BinarySearchTree bst) {
+        if (bst.isComplete()) {
+            System.out.println("The tree is complete.");
+        } else {
+            System.out.println("The tree is not complete.");
+        }
     }
 
     // Generic node finder (returns NodeType<T>)
