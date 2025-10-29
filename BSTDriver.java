@@ -1,3 +1,4 @@
+package cs2720.p3;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,12 +11,11 @@ public class BSTDriver {
         System.out.println("Enter list type (i - int, d - double, s - string): ");
         char typeChar = input.next().toLowerCase().charAt(0);
 
-        // Accept an optional filename argument. If none provided, use data.txt.
-        // If multiple args are given, join them with spaces to support filenames that contain spaces.
         String filename = "data.txt";
         if (args.length >= 1) {
             filename = String.join(" ", args);
         }
+        System.out.println(filename);
 
         // We'll use a raw BinarySearchTree reference and treat values based on typeChar.
         BinarySearchTree bst = null;
@@ -26,39 +26,31 @@ public class BSTDriver {
             s = new Scanner(new File(filename));
             bst = new BinarySearchTree();
             if (typeChar == 'i') {
-                while (s.hasNext()) {
-                    if (s.hasNextInt()) {
-                        try {
-                            bst.insert(s.nextInt());
-                            insertedFromFile++;
-                        } catch (IllegalArgumentException e) {
-                            System.out.println(e.getMessage());
-                        }
-                    } else {
-                        s.next();
-                    }
-                }
-            } else if (typeChar == 'd') {
-                while (s.hasNext()) {
-                    if (s.hasNextDouble()) {
-                        try {
-                            bst.insert(s.nextDouble());
-                            insertedFromFile++;
-                        } catch (IllegalArgumentException e) {
-                            System.out.println(e.getMessage());
-                        }
-                    } else {
-                        s.next();
-                    }
-                }
-            } else if (typeChar == 's') {
-                while (s.hasNext()) {
+                while (s.hasNextInt()) {
                     try {
-                        bst.insert(s.next());
+                        int curr = s.nextInt();
+                        bst.insert(curr);
+                        System.out.println(curr);
                         insertedFromFile++;
                     } catch (IllegalArgumentException e) {
                         System.out.println(e.getMessage());
                     }
+                }
+            } else if (typeChar == 'd') {
+                if (s.hasNextDouble()) {
+                    try {
+                        bst.insert(s.nextDouble());
+                        insertedFromFile++;
+                    } catch (IllegalArgumentException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+            } else if (typeChar == 's') {
+                try {
+                    bst.insert(s.next());
+                    insertedFromFile++;
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
                 }
             } else {
                 System.out.println("Invalid type selected.");
@@ -70,30 +62,31 @@ public class BSTDriver {
             }
         } catch (FileNotFoundException e) {
             // If the input file is not found, create an empty tree and continue
-            System.out.println("Input file '" + filename + "' not found; starting with an empty tree.");
+            System.out.println("Input file '" + filename + "' not found; empty tree.");
             bst = new BinarySearchTree();
         } finally {
             if (s != null) {
                 s.close();
             }
             // report how many items were read from the file (0 if none or file missing)
-            System.out.println("Tried file: '" + filename + "' — inserted " + insertedFromFile + " item(s) into the tree.");
+            System.out.println("Tried: '" + filename + "' insert " + insertedFromFile);
         }
 
         char command = ' ';
+        //Initial commands:
+        System.out.println("Commands:");
+        System.out.println("(i) - Insert Item");
+        System.out.println("(d) - Delete Item");
+        System.out.println("(p) - Print Tree (in-order)");
+        System.out.println("(r) - Retrieve Item");
+        System.out.println("(l) - Count Leaf Nodes");
+        System.out.println("(s) - Find Single Parents");
+        System.out.println("(c) - Find Cousins of a node");
+        System.out.println("(o) - Is Proper?");
+        System.out.println("(m) - Is Complete?");
+        System.out.println("(q) - Quit program");
         while (command != 'q') {
-            System.out.println("Commands:");
-            System.out.println("(i) - Insert Item");
-            System.out.println("(d) - Delete Item");
-            System.out.println("(p) - Print Tree (in-order)");
-            System.out.println("(r) - Retrieve Item");
-            System.out.println("(l) - Count Leaf Nodes");
-            System.out.println("(s) - Find Single Parents");
-            System.out.println("(c) - Find Cousins of a node");
-            System.out.println("(o) - Is Proper?");
-            System.out.println("(m) - Is Complete?");
-            System.out.println("(q) - Quit program");
-
+            System.out.println("Enter a command: ");
             String value = input.next().toLowerCase();
             if (value.isEmpty()) {
                 continue;
