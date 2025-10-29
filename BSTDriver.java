@@ -9,7 +9,6 @@ public class BSTDriver {
         Scanner input = new Scanner(System.in);
         System.out.println("Enter list type (i - int, d - double, s - string): ");
         char typeChar = input.next().toLowerCase().charAt(0);
-        String type = (typeChar == 'i') ? "int" : (typeChar == 'd') ? "double" : (typeChar == 's') ? "string" : "";
 
         // Accept an optional filename argument. If none provided, use data.txt.
         // If multiple args are given, join them with spaces to support filenames that contain spaces.
@@ -20,52 +19,54 @@ public class BSTDriver {
 
         // We'll use a raw BinarySearchTree reference and treat values based on typeChar.
         BinarySearchTree bst = null;
+        int insertedFromFile = 0;
         Scanner s = null;
         try {
             // construct Scanner inside try so FileNotFoundException is thrown from here
             s = new Scanner(new File(filename));
             bst = new BinarySearchTree();
-            switch (typeChar) {
-                case 'i':
-                    while (s.hasNext()) {
-                        if (s.hasNextInt()) {
-                            try {
-                                bst.insert(s.nextInt());
-                            } catch (IllegalArgumentException e) {
-                                System.out.println(e.getMessage());
-                            }
-                        } else {
-                            s.next();
-                        }
-                    }
-                    break;
-                case 'd':
-                    while (s.hasNext()) {
-                        if (s.hasNextDouble()) {
-                            try {
-                                bst.insert(s.nextDouble());
-                            } catch (IllegalArgumentException e) {
-                                System.out.println(e.getMessage());
-                            }
-                        } else {
-                            s.next();
-                        }
-                    }
-                    break;
-                case 's':
-                    while (s.hasNext()) {
+            if (typeChar == 'i') {
+                while (s.hasNext()) {
+                    if (s.hasNextInt()) {
                         try {
-                            bst.insert(s.next());
+                            bst.insert(s.nextInt());
+                            insertedFromFile++;
                         } catch (IllegalArgumentException e) {
                             System.out.println(e.getMessage());
                         }
+                    } else {
+                        s.next();
                     }
-                    break;
-                default:
-                    System.out.println("Invalid type selected.");
-                    input.close();
-                    if (s != null) s.close();
-                    return;
+                }
+            } else if (typeChar == 'd') {
+                while (s.hasNext()) {
+                    if (s.hasNextDouble()) {
+                        try {
+                            bst.insert(s.nextDouble());
+                            insertedFromFile++;
+                        } catch (IllegalArgumentException e) {
+                            System.out.println(e.getMessage());
+                        }
+                    } else {
+                        s.next();
+                    }
+                }
+            } else if (typeChar == 's') {
+                while (s.hasNext()) {
+                    try {
+                        bst.insert(s.next());
+                        insertedFromFile++;
+                    } catch (IllegalArgumentException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+            } else {
+                System.out.println("Invalid type selected.");
+                input.close();
+                if (s != null) {
+                    s.close();
+                }
+                return;
             }
         } catch (FileNotFoundException e) {
             // If the input file is not found, create an empty tree and continue
@@ -75,6 +76,8 @@ public class BSTDriver {
             if (s != null) {
                 s.close();
             }
+            // report how many items were read from the file (0 if none or file missing)
+            System.out.println("Tried file: '" + filename + "' — inserted " + insertedFromFile + " item(s) into the tree.");
         }
 
         char command = ' ';
@@ -96,39 +99,28 @@ public class BSTDriver {
                 continue;
             }
             command = value.charAt(0);
-            switch (command) {
-                case 'i':
-                    iCalled(input, bst, typeChar);
-                    break;
-                case 'd':
-                    dCalled(input, bst, typeChar);
-                    break;
-                case 'p':
-                    pCalled(bst);
-                    break;
-                case 'r':
-                    rCalled(input, bst, typeChar);
-                    break;
-                case 'l':
-                    lCalled(bst);
-                    break;
-                case 's':
-                    sCalled(bst);
-                    break;
-                case 'c':
-                    cCalled(input, bst, typeChar);
-                    break;
-                case 'o':
-                    oCalled(bst);
-                    break;
-                case 'm':
-                    mCalled(bst);
-                    break;
-                case 'q':
-                    System.out.println("Quitting.");
-                    break;
-                default:
-                    System.out.println("Invalid command. Please enter a valid command.");
+            if (command == 'i') {
+                iCalled(input, bst, typeChar);
+            } else if (command == 'd') {
+                dCalled(input, bst, typeChar);
+            } else if (command == 'p') {
+                pCalled(bst);
+            } else if (command == 'r') {
+                rCalled(input, bst, typeChar);
+            } else if (command == 'l') {
+                lCalled(bst);
+            } else if (command == 's') {
+                sCalled(bst);
+            } else if (command == 'c') {
+                cCalled(input, bst, typeChar);
+            } else if (command == 'o') {
+                oCalled(bst);
+            } else if (command == 'm') {
+                mCalled(bst);
+            } else if (command == 'q') {
+                System.out.println("Quitting.");
+            } else {
+                System.out.println("Invalid command. Please enter a valid command.");
             }
         }
         input.close();
@@ -138,15 +130,12 @@ public class BSTDriver {
         System.out.print("Enter value to insert: ");
         String value = input.next();
         try {
-            switch (typeChar) {
-                case 'i':
-                    bst.insert(Integer.parseInt(value));
-                    break;
-                case 'd':
-                    bst.insert(Double.parseDouble(value));
-                    break;
-                default:
-                    bst.insert(value);
+            if (typeChar == 'i') {
+                bst.insert(Integer.parseInt(value));
+            } else if (typeChar == 'd') {
+                bst.insert(Double.parseDouble(value));
+            } else {
+                bst.insert(value);
             }
             System.out.println("Inserted: " + value);
         } catch (Exception e) {
@@ -158,15 +147,12 @@ public class BSTDriver {
         System.out.print("Enter value to delete: ");
         String value = input.next();
         try {
-            switch (typeChar) {
-                case 'i':
-                    bst.delete(Integer.parseInt(value));
-                    break;
-                case 'd':
-                    bst.delete(Double.parseDouble(value));
-                    break;
-                default:
-                    bst.delete(value);
+            if (typeChar == 'i') {
+                bst.delete(Integer.parseInt(value));
+            } else if (typeChar == 'd') {
+                bst.delete(Double.parseDouble(value));
+            } else {
+                bst.delete(value);
             }
             System.out.println("Deleted (if present): " + value);
         } catch (Exception e) {
@@ -184,15 +170,12 @@ public class BSTDriver {
         String value = input.next();
         try {
             boolean found;
-            switch (typeChar) {
-                case 'i':
-                    found = bst.retrieve(Integer.parseInt(value));
-                    break;
-                case 'd':
-                    found = bst.retrieve(Double.parseDouble(value));
-                    break;
-                default:
-                    found = bst.retrieve(value);
+            if (typeChar == 'i') {
+                found = bst.retrieve(Integer.parseInt(value));
+            } else if (typeChar == 'd') {
+                found = bst.retrieve(Double.parseDouble(value));
+            } else {
+                found = bst.retrieve(value);
             }
             System.out.println("Retrieve " + value + ": " + (found ? "FOUND" : "NOT FOUND"));
             return found;
@@ -220,16 +203,12 @@ public class BSTDriver {
         String value = input.next();
         try {
             Object key;
-            switch (typeChar) {
-                case 'i':
-                    key = Integer.parseInt(value);
-                    break;
-                case 'd':
-                    key = Double.parseDouble(value);
-                    break;
-                default:
-                    key = value;
-                    break;
+            if (typeChar == 'i') {
+                key = Integer.parseInt(value);
+            } else if (typeChar == 'd') {
+                key = Double.parseDouble(value);
+            } else {
+                key = value;
             }
             // find node by traversing
             NodeType node = findNode((NodeType) bst.getRoot(), (Comparable) key);
